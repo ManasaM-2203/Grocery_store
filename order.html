@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="csrf-token" content="kmapods5wQ5L1hn7rcR9OPst7EsN0gC7SrHh3m9K"/>
+    <title>GSMS</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #C6E7FF;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: #FBFBFB;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #customerName {
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            width: 180px;
+        }
+
+        .product-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .product-item.header {
+            font-weight: bold;
+            background-color: #f0f0f0;
+            border-top: 1px solid #608BC1;
+            padding: 10px;
+        }
+
+        .product-item div {
+            flex: 1;
+            padding: 5px;
+        }
+
+        .product-select, .product-price, .product-qty, .product-total {
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid #608BC1;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .product-select {
+            max-width: 150px;
+        }
+
+        .product-price, .product-qty, .product-total {
+            max-width: 100px;
+            text-align: right;
+        }
+
+        .product-grand-total {
+            padding: 6px 10px;
+            width: 120px;
+            border: 1px solid #608BC1;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: right;
+            color: #333;
+            background-color: #f9f9f9;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: #024CAA;
+            color: #fff;
+            margin-right: 10px;
+        }
+
+        .btn-primary:hover {
+            background-color: #091057;
+        }
+
+        .btn-danger {
+            background-color: #d9534f;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background-color: #c9302c;
+        }
+
+        .text-right {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .product-item button {
+            background-color: transparent;
+            border: none;
+            color: #d9534f;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .product-item button:hover {
+            text-decoration: underline;
+        }
+
+        #productTemplate {
+            display: none;
+        }
+
+        button[onclick="addProductRow()"] {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>New Order
+        <input name="customerName" id="customerName" type="text" class="form-control" value="Rahul" />
+    </h2>
+
+    <div class="product-item header">
+        <div class="product-select">Product</div>
+        <div class="product-price">Price</div>
+        <div class="product-qty">Quantity</div>
+        <div class="product-total text-right">Total</div>
+        <button class="btn btn-primary" type="button" onclick="addProductRow()">Add More</button>
+    </div>
+
+    <div id="itemsInOrder"></div>
+
+    <div class="text-right">
+        <strong>Total</strong>
+        <input id="product_grand_total" name="product_grand_total" class="product-grand-total" value="0.0" readonly> Rs
+        <button class="btn btn-primary" type="button" onclick="saveOrder()">Save</button>
+    </div>
+</div>
+
+<div id="productTemplate" class="product-item">
+    <select name="product" class="form-control product-select" onchange="updateProductPrice(this)">
+        <option value="rice" data-price="25">Rice</option>
+        <option value="spinach" data-price="34.5">Spinach</option>
+    </select>
+    <input name="product_price" class="form-control product-price" value="0.0" readonly>
+    <input name="qty" type="number" min="1" class="form-control product-qty" value="1" oninput="updateTotal(this)">
+    <input name="item_total" class="form-control product-total text-right" value="0.0" readonly> Rs
+    <button class="btn btn-danger" type="button" onclick="removeRow(this)">Remove</button>
+</div>
+
+<script>
+    function addProductRow() {
+        const template = document.getElementById('productTemplate').cloneNode(true);
+        template.style.display = 'flex';
+        template.removeAttribute('id');
+        document.getElementById('itemsInOrder').appendChild(template);
+        updateProductPrice(template.querySelector('.product-select'));
+    }
+
+    function removeRow(button) {
+        button.closest('.product-item').remove();
+        updateGrandTotal();
+    }
+
+    function updateProductPrice(select) {
+        const price = parseFloat(select.options[select.selectedIndex].dataset.price);
+        const row = select.closest('.product-item');
+        row.querySelector('.product-price').value = price.toFixed(2);
+        updateTotal(row.querySelector('.product-qty'));
+    }
+
+    function updateTotal(input) {
+        const row = input.closest('.product-item');
+        const price = parseFloat(row.querySelector('.product-price').value);
+        const quantity = parseFloat(input.value) || 0;
+        const total = price * quantity;
+        row.querySelector('.product-total').value = total.toFixed(2);
+        updateGrandTotal();
+    }
+
+    function updateGrandTotal() {
+        let grandTotal = 0;
+        document.querySelectorAll('.product-total').forEach(item => {
+            grandTotal += parseFloat(item.value) || 0;
+        });
+        document.getElementById('product_grand_total').value = grandTotal.toFixed(2);
+    }
+
+    function saveOrder() {
+        alert("Order saved with total: Rs " + document.getElementById('product_grand_total').value);
+    }
+</script>
+</body>
+</html>
+

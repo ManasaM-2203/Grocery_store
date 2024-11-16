@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GSMS</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="csrf-token" content="kmapods5wQ5L1hn7rcR9OPst7EsN0gC7SrHh3m9K"/>
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,300,600,700"> -->
+    <style>
+        /* Inline CSS */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7f6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+        .header {
+            background-color: #024CAA;
+            color: #fff;
+            padding: 10px 20px;
+        }
+        .button-menu-mobile {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+        }
+        .breadcrumb a {
+            color: white;
+            text-decoration: none;
+            padding: 5px;
+        }
+        .content-page {
+            margin: 20px;
+        }
+        .box-info {
+            background-color: #E4E0E1;
+            border: 1px solid #DBD3D3;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .btn {
+            padding: 5px 10px;
+            border-radius: 3px;
+            color: #fff;
+        }
+        .btn-primary {
+            background-color: #024CAA;
+        }
+        .table {
+            width: 100%;
+            margin-top: 10px;
+            border-collapse: collapse;
+        }
+        .table, .table th, .table td {
+            border: 1px solid #DBD3D3;
+        }
+        .table th, .table td {
+            padding: 8px;
+            text-align: left;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body class="tooltips">
+<div class="container">
+    <div class="header content rows-content-header">
+        <button class="button-menu-mobile show-sidebar" onclick="toggleSidebar()">
+            <i class="fa fa-bars"></i>
+        </button>
+        <div class="navbar navbar-default" role="navigation">
+            <div class="breadcrumb">
+                <a href="index.html"><i class="zmdi zmdi-view-dashboard zmdi-hc-fw" title="Orders"></i></a>
+                <a href="manage-product.html"><i class="zmdi zmdi-assignment zmdi-hc-fw" title="Products"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="right content-page">
+        <div class="body content rows scroll-y">
+            <div class="box-info full" id="taskFormContainer">
+                <h2>Manage Products</h2>
+                <div class="panel-body pt-0">
+                    <div class="row mb-4">
+                        <div class="col-sm-12">
+                            <button type="button" class="btn btn-sm btn-primary pull-right" onclick="showModal()">
+                                Add New Product
+                            </button>
+                        </div>
+                    </div>
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Unit</th>
+                            <th>Price Per Unit</th>
+                            <th style="width: 150px">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody id="productTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add New Product</h4>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <input type="hidden" name="id" id="id" value="0">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input class="form-control" placeholder="Name" name="name" id="name" type="text">
+                    </div>
+                    <div class="form-group">
+                        <label>Unit</label>
+                        <select name="uoms" id="uoms" class="form-control">
+                            <option value="kg">kg</option>
+                            <option value="liters">liters</option>
+                            <option value="pcs">pcs</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Price Per Unit</label>
+                        <input class="form-control" placeholder="Price Per Unit" name="price" id="price" type="text">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+                <button type="button" class="btn btn-primary" onclick="saveProduct()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Inline JavaScript
+
+    function toggleSidebar() {
+        alert('Sidebar toggled (Placeholder function)');
+    }
+
+    function showModal() {
+        document.getElementById('productModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('productModal').style.display = 'none';
+    }
+
+    function saveProduct() {
+        const name = document.getElementById('name').value;
+        const unit = document.getElementById('uoms').value;
+        const price = document.getElementById('price').value;
+
+        const tableBody = document.getElementById('productTableBody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `<td>${name}</td><td>${unit}</td><td>${price}</td><td><button onclick="deleteRow(this)">Delete</button></td>`;
+        tableBody.appendChild(newRow);
+
+        closeModal();
+    }
+
+    function deleteRow(button) {
+        const row = button.parentElement.parentElement;
+        row.remove();
+    }
+</script>
+
+</body>
+</html>
